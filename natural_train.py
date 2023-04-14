@@ -6,23 +6,23 @@ import time
 import logging
 
 from dataset.Spk251_train import Spk251_train
-from dataset.Spk251_test import Spk251_test
+from dataset.Spk251_test import Spk251_test 
+from model.AudioNet import AudioNet
 
-from model.audionet_csine import audionet_csine
-from model.defended_model import defended_model
-from defense.defense import parser_defense 
+from defense.defense import *
+import time
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
+print(device)
+starttime = time.time()
+time.sleep(2.1) #??2.1s
 def parser_args():
     import argparse 
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-defense', nargs='+', default=None)
-    parser.add_argument('-defense_param', nargs='+', default=None)
-    parser.add_argument('-defense_flag', nargs='+', default=None, type=int)
-    parser.add_argument('-defense_order', default='sequential', choices=['sequential', 'average'])
+    parser.add_argument('-defense', default=None)
+    parser.add_argument('-defense_param', default=None, nargs='+')
 
     parser.add_argument('-label_encoder', default='./label-encoder-audionet-Spk251_test.txt')
 
@@ -64,16 +64,18 @@ def validation(model, val_data):
 def main(args):
 
     # load model
-    # load model
+    # speaker info
+    defense_param = parser_defense_param(args.defense, args.defense_param)
+    model = AudioNet(args.label_encoder,
+                    transform_layer=args.defense,
+                    transform_param=defense_param)
+    spk_ids = model.spk_ids 
     if args.ori_model_ckpt:
         print(args.ori_model_ckpt)
-        base_model = audionet_csine(extractor_file=args.ori_model_ckpt, label_encoder=args.label_encoder, device=device)
-        base_model.train() # important!! since audionet_csine() will set to eval() if extractor_file is not None
-    else:
-        base_model = audionet_csine(label_encoder=args.label_encoder, device=device)
-    spk_ids = base_model.spk_ids
-    defense, defense_name = parser_defense(args.defense, args.defense_param, args.defense_flag, args.defense_order)
-    model = defended_model(base_model=base_model, defense=defense, order=args.defense_order)
+        # state_dict = torch.load(args.ori_model_ckpt, map_location=device).state_dict()
+        state_dict = torch.load(args.ori_model_ckpt, map_location=device)
+        model.load_state_dict(state_dict)
+    model.to(device)
     print('load model done')
 
     # load optimizer
@@ -113,12 +115,9 @@ def main(args):
     criterion = torch.nn.CrossEntropyLoss()
 
     # 
-    log = args.log if args.log else ('./model_file/audionet-natural-{}.log'.format(defense_name) if defense is not None else \
-                                    './model_file/audionet-natural.log')
+    log = args.log if args.log else './model_file/AuioNet-natural-{}-{}.log'.format(args.defense, args.defense_param)
     logging.basicConfig(filename=log, level=logging.DEBUG)
-    model_ckpt = args.model_ckpt if args.model_ckpt else \
-        ('./model_file/audionet-natural-{}'.format(defense_name) if defense is not None else \
-                                                                './model_file/audionet-natural') 
+    model_ckpt = args.model_ckpt if args.model_ckpt else './model_file/AudioNet-natural-{}-{}'.format(args.defense, args.defense_param)
     print(log, model_ckpt)
 
     num_batches = len(train_dataset) // args.batch_size
@@ -131,7 +130,7 @@ def main(args):
             y_batch = y_batch.to(device)
             # print(x_batch.min(), x_batch.max())
 
-            #Noise augmentation to normal samples
+            #Gaussian augmentation to normal samples
             all_ids = range(x_batch.shape[0])
             normal_ids = all_ids
 
@@ -175,9 +174,8 @@ def main(args):
         ckpt = model_ckpt + "_{}".format(i_epoch + args.start_epoch)
         ckpt_optim = ckpt + '.opt'
         # torch.save(model, ckpt)
-        # torch.save(optimizer, ckpt_optim) 
-        # torch.save(model.state_dict(), ckpt) # DO NOT save the whole defended_model
-        torch.save(model.base_model.state_dict(), ckpt) # save the base_model
+        # torch.save(optimizer, ckpt_optim)
+        torch.save(model.state_dict(), ckpt)
         torch.save(optimizer.state_dict(), ckpt_optim)
         print()
         print("Save epoch ckpt in %s" % ckpt)
@@ -192,9 +190,11 @@ def main(args):
             logging.info('Val Acc: {:.6f}'.format(val_acc))
     
     # torch.save(model, model_ckpt)
-    # torch.save(model.state_dict(), model_ckpt) # DO NOT save the whole defended_model
-    torch.save(model.base_model.state_dict(), model_ckpt) # save the base_model
+    torch.save(model.state_dict(), model_ckpt)
 
 if __name__ == '__main__':
 
     main(parser_args())
+    endtime = time.time()
+    dtime = endtime - starttime
+    print("time：  %.8s s" % dtime)

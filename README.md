@@ -1,33 +1,9 @@
-
-# News
-- The paper releasing **SpeakerGuard** has been accepted by IEEE Transactions on Dependable and Secure Computing (TDSC), 2022.
-
-# SpeakerGuard
-<!-- This repository contains the code for SpeakerGuard, a Pytorch library for adversarial machine learning research on speaker recognition. -->
-This repository contains the code for SpeakerGuard, a Pytorch library for security research on speaker recognition.
-
-<!-- Paper: Anonymous Submission to a conference (Under Review Currently) -->
-Paper: [SpeakerGuard Paper](https://arxiv.org/abs/2206.03393)
-
-Website: [SpeakerGuard Website](https://speakerguard.github.io/)
-
-Feel free to use SpeakerGuard for academic purpose 😄. For commercial purpose, please contact us 📫.
-
-Cite our paper as follow:
-```
-@article{SpeakerGuard,
-  author    = {Guangke Chen and
-               Zhe Zhao and
-               Fu Song and
-               Sen Chen and
-               Lingling Fan and
-               Feng Wang and 
-               Jiashui Wang},
-  title     = {Towards Understanding and Mitigating Audio Adversarial Examples for Speaker Recognition},
-  journal   = {IEEE Transactions on Dependable and Secure Computing},
-  year      = {2022}
-}
-```
+## CSI
+CSI 任务是说话人识别中最简单的形式，它涉及到的是一个闭合集合的说话人身份验证问题。也就是说，给定一个测试语音和一个已知的说话人身份的说话人模型，任务是确定该测试语音是否属于该已知的说话人。CSI 任务可以进一步分为三个子任务：开发集，评估集和评估子集。在开发集中，您可以训练和调整说话人识别系统的参数。在评估集中，您测试系统的性能。而评估子集是评估集的子集，用于研究和理解系统的弱点。
+## CSI-E
+CSI-E 任务也涉及说话人身份验证，但需要有一个较长的音频作为“登记”或“训练”数据。在CSI-E 任务中，任务是首先通过提取语音特征来生成说话人的嵌入，然后将这些嵌入送入训练过的模型中。在测试阶段，系统将采用同样的方法提取语音特征，并生成相应的嵌入。然后，它将计算嵌入之间的距离，并将其与预定义的阈值进行比较，以确定是否接受或拒绝测试说话人的身份。与CSI任务不同，CSI-E任务需要一个额外的训练阶段来训练模型并对不同的说话人进行嵌入学习。
+## OSI
+OSI 代表“Open-Set Identification”。这两个任务的目标都是识别说话人的身份。在 CSI-E 任务中，模型只考虑已知说话人的身份，并且在测试阶段，模型需要从一组已知的说话人中选择一个作为测试音频的来源。而在 OSI 任务中，模型需要在一个更大的说话人群中识别说话人，而且说话人群中可能不存在与测试音频相同的说话人。因此，OSI 任务需要模型能够在未见过的说话人身份上进行推断，而 CSI-E 任务则不需要这样做。
 
 # 1. Usage
 ## 1.1 Requirements
