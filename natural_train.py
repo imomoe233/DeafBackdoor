@@ -9,7 +9,7 @@ from dataset.Spk251_train import Spk251_train
 from dataset.Spk251_test import Spk251_test 
 from model.AudioNet import AudioNet
 
-from defense.defense import *
+# from defense.defense import *
 import time
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'

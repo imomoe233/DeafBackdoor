@@ -7,7 +7,7 @@ Paper: Who is Real Bob? Adversarial Attacks on Speaker Recognition Systems (IEEE
 import torch
 from torch.utils.data import DataLoader
 import numpy as np
-from defense.defense import parser_defense
+# from defense.defense import parser_defense
 
 from model.iv_plda import iv_plda
 from model.xv_plda import xv_plda
@@ -56,7 +56,8 @@ def main(args):
     else:
         raise NotImplementedError('Unsupported System Type')
     
-    defense, defense_name = parser_defense(args.defense, args.defense_param, args.defense_flag, args.defense_order)
+    # defense, defense_name = parser_defense(args.defense, args.defense_param, args.defense_flag, args.defense_order)
+    defense, defense_name = None, None
     model = defended_model(base_model=base_model, defense=defense, order=args.defense_order)
     
     #Step2: load dataset

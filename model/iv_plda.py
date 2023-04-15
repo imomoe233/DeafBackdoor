@@ -68,6 +68,7 @@ class iv_plda(nn.Module):
         if model_file is not None:
             self.num_spks, self.spk_ids, self.z_norm_means, self.z_norm_stds, self.enroll_embs = \
                 parse_enroll_model_file(model_file, self.device)
+                # parse_enroll_model_file(model_file, self.device)
 
         # If you need SV or OSI, must input threshold
         self.threshold = threshold if threshold else -np.infty # Valid for SV and OSI tasks; CSI: -infty

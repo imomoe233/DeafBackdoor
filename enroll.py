@@ -3,7 +3,7 @@ import torch
 import os
 import numpy as np
 import torchaudio
-from defense.defense import parser_defense
+# from defense.defense import parser_defense
 
 from model.iv_plda import iv_plda
 from model.xv_plda import xv_plda
@@ -21,8 +21,9 @@ def main(args):
         base_model = xv_plda(args.extractor, args.plda, args.mean, args.transform, device=device)
     else:
         raise NotImplementedError('Unsupported System Type')
-    
-    defense, defense_name = parser_defense(args.defense, args.defense_param, args.defense_flag, args.defense_order)
+
+    # defense, defense_name = parser_defense(args.defense, args.defense_param, args.defense_flag, args.defense_order) 
+    defense, defense_name = None, None 
     model = defended_model(base_model=base_model, defense=defense, order=args.defense_order)
 
     #Step2: scoring
